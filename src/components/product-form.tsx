@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -46,8 +47,8 @@ const productSchema = z.object({
   categoryId: z.string().nonempty("Por favor, selecciona una categoría."),
   imageUrls: z.array(z.string().url()).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
   sizes: z.array(z.string()).nonempty("Debe seleccionar al menos un talle"),
-  colors: z.array(z.string()).length(1, "Debe seleccionar un color"),
-  stock: z.array(stockItemSchema).nonempty("Debe ingresar stock para talles y colores"),
+  colors: z.array(z.string()).nonempty("Debe definir al menos un color en el stock."),
+  stock: z.array(stockItemSchema).nonempty("Debe ingresar stock para al menos una combinación de talle y color"),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
@@ -61,66 +62,129 @@ function StockInputs() {
   });
   
   const watchedSizes = useWatch({ control, name: "sizes" });
-  const watchedColors = useWatch({ control, name: "colors" });
+  const [newColor, setNewColor] = React.useState("#000000");
+
+  const handleAddColor = () => {
+    const currentStock = getValues("stock") || [];
+    const newStock: StockItem[] = [...currentStock];
+    const watchedSizesValue = watchedSizes || [];
+
+    // Check if this color is already managed
+    const colorExists = currentStock.some(item => item.color === newColor);
+    if(colorExists) {
+      // Maybe show a toast? For now, we just don't add it.
+      return;
+    }
+
+    if (watchedSizesValue.length > 0) {
+      for (const size of watchedSizesValue) {
+        newStock.push({
+          size,
+          color: newColor,
+          quantity: 0,
+        });
+      }
+    }
+    replace(newStock);
+  };
+
 
   React.useEffect(() => {
     const currentStock = getValues("stock") || [];
     const newStock: StockItem[] = [];
+    const existingColors = Array.from(new Set(currentStock.map(s => s.color)));
 
-    if (watchedSizes && watchedSizes.length > 0 && watchedColors && watchedColors.length > 0) {
-      for (const size of watchedSizes) {
-        for (const color of watchedColors) {
-          const existingStock = currentStock.find(
-            (s: StockItem) => s.size === size && s.color === color
-          );
-          newStock.push({
-            size,
-            color,
-            quantity: existingStock ? existingStock.quantity : 0,
-          });
-        }
+    if (watchedSizes && watchedSizes.length > 0 && existingColors.length > 0) {
+      for (const color of existingColors) {
+          for (const size of watchedSizes) {
+              const existingStockItem = currentStock.find(
+                  (s: StockItem) => s.size === size && s.color === color
+              );
+              newStock.push({
+                  size,
+                  color,
+                  quantity: existingStockItem ? existingStockItem.quantity : 0,
+              });
+          }
       }
+       // Filter out items for sizes that are no longer selected
+      const filteredStock = newStock.filter(item => watchedSizes.includes(item.size));
+      replace(filteredStock);
+    } else {
+      replace([]);
     }
-    replace(newStock);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedSizes, watchedColors, replace]);
+  }, [watchedSizes]);
 
-  if (!watchedSizes?.length || !watchedColors?.length) {
-      return <p className="text-sm text-muted-foreground">Selecciona al menos un talle y un color para gestionar el stock.</p>
+
+  if (!watchedSizes?.length) {
+      return <p className="text-sm text-muted-foreground">Selecciona al menos un talle para empezar a gestionar el stock.</p>
   }
   
+  const stockByColor = fields.reduce((acc, field) => {
+    if (!acc[field.color]) {
+      acc[field.color] = [];
+    }
+    acc[field.color].push(field);
+    return acc;
+  }, {} as Record<string, typeof fields>);
+
   return (
-    <div className="space-y-2 max-h-60 overflow-auto rounded border p-2 bg-muted/50">
-      {fields.map((field, index) => {
-        return (
-          <div key={field.id} className="flex items-center justify-between gap-4 p-2 rounded bg-background">
-            <div className="flex items-center gap-2">
-               <div className="w-4 h-4 rounded-full border" style={{backgroundColor: field.color, textShadow: '0 0 2px rgba(0,0,0,0.5)'}}></div>
-               <span className="font-medium text-sm capitalize">{field.size}</span>
-            </div>
-            <Controller
-                control={control}
-                name={`stock.${index}.quantity`}
-                render={({ field: controllerField }) => (
-                    <FormItem>
-                         <FormControl>
-                            <Input
-                            type="number"
-                            min={0}
-                            {...controllerField}
-                            className="w-24 h-8"
-                            inputMode="numeric"
+    <div className="space-y-4">
+        <div className="flex items-end gap-4">
+            <FormItem>
+                <FormLabel>Añadir Color</FormLabel>
+                <FormControl>
+                    <ColorPicker
+                        initialColor={newColor}
+                        onColorChange={setNewColor}
+                    />
+                </FormControl>
+            </FormItem>
+            <Button type="button" onClick={handleAddColor} variant="outline">Añadir Color a Stock</Button>
+        </div>
+        
+        {Object.entries(stockByColor).map(([color, stockItems]) => (
+            <div key={color} className="space-y-2 rounded border p-4 bg-muted/50">
+                 <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full border" style={{backgroundColor: color}}></div>
+                    <h4 className="font-medium">Stock para color: {color}</h4>
+                 </div>
+                {stockItems.map((field) => {
+                    const index = fields.findIndex(f => f.id === field.id);
+                    return (
+                        <div key={field.id} className="flex items-center justify-between gap-4 p-2 rounded bg-background">
+                            <span className="font-medium text-sm capitalize">Talle: {field.size}</span>
+                            <Controller
+                                control={control}
+                                name={`stock.${index}.quantity`}
+                                render={({ field: controllerField }) => (
+                                    <FormItem className="flex items-center gap-2 space-y-0">
+                                        <FormLabel className="text-sm">Cantidad:</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                            type="number"
+                                            min={0}
+                                            {...controllerField}
+                                            className="w-24 h-8"
+                                            inputMode="numeric"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                </FormItem>
+                                )}
                             />
-                        </FormControl>
-                        <FormMessage />
-                   </FormItem>
-                )}
-            />
-          </div>
-        )
-      })}
+                        </div>
+                    )
+                })}
+            </div>
+        ))}
+
        {errors.stock && typeof errors.stock === 'object' && 'message' in errors.stock && (
           <p className="text-sm font-medium text-destructive">{errors.stock.message}</p>
+      )}
+       {errors.colors && typeof errors.colors === 'object' && 'message' in errors.colors && (
+          <p className="text-sm font-medium text-destructive">{errors.colors.message}</p>
       )}
     </div>
   );
@@ -167,6 +231,13 @@ export function ProductForm({ product }: { product?: Product }) {
   const { formState, control, setValue, watch } = methods;
 
   const imageUrls = watch("imageUrls");
+  const watchedStock = watch("stock");
+
+  // Automatically update `colors` array based on the stock
+  React.useEffect(() => {
+      const uniqueColors = Array.from(new Set(watchedStock.map(item => item.color)));
+      setValue("colors", uniqueColors, { shouldValidate: true, shouldDirty: true });
+  }, [watchedStock, setValue]);
 
   async function onSubmit(data: ProductFormValues) {
     // Filter out any empty strings from imageUrls before submitting
@@ -254,7 +325,7 @@ export function ProductForm({ product }: { product?: Product }) {
                         name="sizes"
                         render={({ field }) => (
                             <FormItem>
-                             <FormLabel>Talles</FormLabel>
+                             <FormLabel>Talles Aplicables</FormLabel>
                             <FormControl>
                                 <div className="space-y-4">
                                     <ToggleGroup
@@ -287,26 +358,8 @@ export function ProductForm({ product }: { product?: Product }) {
                             </FormItem>
                         )}
                         />
-                     <FormField
-                        control={control}
-                        name="colors"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Color Principal</FormLabel>
-                            <FormControl>
-                                <ColorPicker
-                                initialColor={field.value && field.value.length > 0 ? field.value[0] : "#000000"}
-                                onColorChange={(colorHex) => {
-                                    setValue("colors", [colorHex], { shouldValidate: true, shouldDirty: true });
-                                }}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                      <div className="space-y-2">
-                        <FormLabel>Gestión de Stock</FormLabel>
+                        <FormLabel>Gestión de Stock por Color</FormLabel>
                         <StockInputs />
                      </div>
                 </CardContent>

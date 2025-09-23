@@ -45,7 +45,7 @@ const productSchema = z.object({
   description: z.string().min(1, "La descripción es requerida."),
   price: z.coerce.number().positive("El precio debe ser un número positivo."),
   categoryId: z.string().nonempty("Por favor, selecciona una categoría."),
-  imageUrls: z.array(z.string().url()).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
+  imageUrls: z.array(z.string().url().or(z.literal(''))).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
   sizes: z.array(z.string()).nonempty("Debe seleccionar al menos un talle"),
   colors: z.array(z.string()).nonempty("Debe definir al menos un color en el stock."),
   stock: z.array(stockItemSchema).nonempty("Debe ingresar stock para al menos una combinación de talle y color"),

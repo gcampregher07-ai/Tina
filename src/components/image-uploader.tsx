@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from "react";
@@ -18,9 +19,10 @@ import { useToast } from "@/hooks/use-toast";
 interface ImageUploaderProps {
   fieldName: string;
   productId?: string;
+  onDelete?: () => void;
 }
 
-export function ImageUploader({ fieldName, productId }: ImageUploaderProps) {
+export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderProps) {
   const { setValue, watch, formState: { isSubmitting } } = useFormContext();
   const imageUrl = watch(fieldName);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -96,10 +98,16 @@ export function ImageUploader({ fieldName, productId }: ImageUploaderProps) {
       }
       setValue(fieldName, "", { shouldValidate: true, shouldDirty: true });
       toast({ title: "Imagen eliminada", description: "La imagen se ha eliminado correctamente." });
+      if (onDelete) {
+          onDelete();
+      }
     } catch (error: any) {
       console.error("Error deleting image:", error);
       if (error.code === 'storage/object-not-found') {
         setValue(fieldName, "", { shouldValidate: true, shouldDirty: true });
+         if (onDelete) {
+          onDelete();
+        }
       } else {
         toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la imagen." });
       }
@@ -111,12 +119,8 @@ export function ImageUploader({ fieldName, productId }: ImageUploaderProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Imagen del Producto</CardTitle>
-        <CardDescription>Sube una imagen para tu producto.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card className="relative">
+      <CardContent className="p-4 space-y-4">
         <div
           className={cn(
             "aspect-video w-full flex items-center justify-center rounded-md border-2 border-dashed transition-colors",
@@ -157,18 +161,10 @@ export function ImageUploader({ fieldName, productId }: ImageUploaderProps) {
         <Input id={`image-upload-input-${fieldName}`} type="file" className="sr-only" onChange={handleFileChange} accept="image/*" disabled={uploadProgress !== null || isSubmitting} />
 
         {imageUrl && !uploadProgress && (
-          <Button type="button" variant="outline" className="w-full" onClick={handleDeleteImage} disabled={isSubmitting}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Eliminar imagen
+          <Button type="button" size="icon" variant="destructive" className="absolute top-1 right-1 h-7 w-7" onClick={handleDeleteImage} disabled={isSubmitting}>
+            <Trash2 className="h-4 w-4" />
           </Button>
         )}
-        {!imageUrl && !uploadProgress && (
-          <Button type="button" variant="outline" className="w-full" onClick={triggerFileInput} disabled={isSubmitting}>
-            <Upload className="mr-2 h-4 w-4" />
-            Subir una imagen
-          </Button>
-        )}
-
       </CardContent>
     </Card>
   );

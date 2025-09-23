@@ -30,6 +30,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { ImageUploader } from "./image-uploader"
 import ColorPicker from "./ColorPicker";
+import { PlusCircle } from "lucide-react"
 
 const SIZES_LETTERS = ["S", "M", "L", "XL"];
 const SIZES_NUMBERS = ["34", "36", "38", "40", "42", "44", "46"];
@@ -45,7 +46,7 @@ const productSchema = z.object({
   description: z.string().min(1, "La descripción es requerida."),
   price: z.coerce.number().positive("El precio debe ser un número positivo."),
   categoryId: z.string().nonempty("Por favor, selecciona una categoría."),
-  imageUrls: z.array(z.string().url().or(z.literal(''))).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
+  imageUrls: z.array(z.object({ url: z.string().url("La URL debe ser válida.") })).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
   sizes: z.array(z.string()).nonempty("Debe seleccionar al menos un talle"),
   colors: z.array(z.string()).nonempty("Debe definir al menos un color en el stock."),
   stock: z.array(stockItemSchema).nonempty("Debe ingresar stock para al menos una combinación de talle y color"),
@@ -211,7 +212,7 @@ export function ProductForm({ product }: { product?: Product }) {
         description: product.description,
         price: product.price,
         categoryId: product.categoryId,
-        imageUrls: product.imageUrls || [],
+        imageUrls: product.imageUrls?.map(url => ({ url })) || [],
         sizes: product.sizes || [],
         colors: product.colors || [],
         stock: product.stock || [],
@@ -230,8 +231,12 @@ export function ProductForm({ product }: { product?: Product }) {
   
   const { formState, control, setValue, watch } = methods;
 
-  const imageUrls = watch("imageUrls");
   const watchedStock = watch("stock");
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "imageUrls"
+  });
 
   // Automatically update `colors` array based on the stock
   React.useEffect(() => {
@@ -240,10 +245,9 @@ export function ProductForm({ product }: { product?: Product }) {
   }, [watchedStock, setValue]);
 
   async function onSubmit(data: ProductFormValues) {
-    // Filter out any empty strings from imageUrls before submitting
     const payload = {
         ...data,
-        imageUrls: data.imageUrls?.filter(url => url && typeof url === 'string' && url.length > 0) || []
+        imageUrls: data.imageUrls?.map(item => item.url).filter(url => url) || []
     };
 
     try {
@@ -381,25 +385,37 @@ export function ProductForm({ product }: { product?: Product }) {
                     <CardDescription>Sube hasta 4 imágenes.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[...Array(4)].map((_, index) => (
-                      <FormField
-                          key={index}
-                          control={control}
-                          name={`imageUrls.${index}`}
-                          render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Imagen {index + 1}</FormLabel>
-                                  <FormControl>
-                                      <ImageUploader
-                                          fieldName={field.name}
-                                          productId={productId}
-                                      />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )}
-                      />
-                  ))}
+                    {fields.map((field, index) => (
+                        <FormField
+                            key={field.id}
+                            control={control}
+                            name={`imageUrls.${index}.url`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Imagen {index + 1}</FormLabel>
+                                    <FormControl>
+                                        <ImageUploader
+                                            fieldName={field.name}
+                                            productId={productId}
+                                            onDelete={() => remove(index)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ))}
+                    {fields.length < 4 && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => append({ url: "" })}
+                        >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Añadir Imagen
+                        </Button>
+                    )}
                    <FormField
                       control={control}
                       name="imageUrls"

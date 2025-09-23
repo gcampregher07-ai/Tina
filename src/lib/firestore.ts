@@ -1,6 +1,6 @@
 
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, setDoc, DocumentReference, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
 import { ref, deleteObject } from "firebase/storage";
 import type { Product, Category, HeroData, Order } from './types';
 
@@ -12,7 +12,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function addCategory(category: Omit<Category, 'id'>): Promise<Category> {
-    const docRef = await addDoc(collection(db, "categories"), category);
+    const docRef = await addClientDoc(collection(db, "categories"), category);
     return { id: docRef.id, ...category };
 }
 
@@ -118,34 +118,33 @@ export async function saveHeroData(heroData: HeroData): Promise<void> {
     await setDoc(heroDocRef, heroData);
 }
 
-// Orders
+// Orders (Client SDK)
 export async function getOrders(): Promise<Order[]> {
-    const ordersRef = collection(db, 'orders');
-    const q = query(ordersRef, orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        // Firestore Timestamps need to be converted to JS Dates
-        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
-        return { id: doc.id, ...data, createdAt } as Order;
-    });
-}
-
-export async function addOrder(order: Omit<Order, 'id'>): Promise<DocumentReference> {
-    const docRef = await addDoc(collection(db, "orders"), order);
-    return docRef;
+  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  const orders = querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    // Firestore Timestamps need to be converted to JS Dates
+    const createdAt = data.createdAt.toDate();
+    return { id: doc.id, ...data, createdAt } as Order;
+  });
+  return orders;
 }
 
 export async function getOrder(id: string): Promise<Order | null> {
-    const docRef = doc(db, 'orders', id);
-    const docSnap = await getDoc(docRef);
+    try {
+        const docRef = doc(db, 'orders', id);
+        const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        const createdAt = data.createdAt.toDate();
-        return { id: docSnap.id, ...data, createdAt } as Order;
-    } else {
-        return null;
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const createdAt = data.createdAt.toDate();
+            return { id: docSnap.id, ...data, createdAt } as Order;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("[FIRESTORE_GET_ORDER_ERROR]", error);
+        throw error;
     }
 }

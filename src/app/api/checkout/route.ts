@@ -1,9 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { adminDb } from "@/lib/firebaseAdmin";
-import { addOrder } from '@/lib/firestore';
 import type { CartItem, Order } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+async function addOrder(order: Omit<Order, 'id'>) {
+  try {
+    const docRef = await adminDb.collection("orders").add(order);
+    return docRef;
+  } catch (error) {
+    console.error("[FIRESTORE_ADD_ORDER_ERROR]", error);
+    throw error;
+  }
+}
 
 export async function POST(req: Request) {
   try {

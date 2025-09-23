@@ -328,18 +328,27 @@ export function ProductForm({ product }: { product?: Product }) {
                              <FormLabel>Talles Aplicables</FormLabel>
                             <FormControl>
                                 <div className="space-y-4">
-                                    <ToggleGroup
-                                        type="multiple"
-                                        variant="outline"
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                    >
-                                        {SIZES_LETTERS.map(size => (
-                                            <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
-                                                {size}
-                                            </ToggleGroupItem>
-                                        ))}
-                                    </ToggleGroup>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <ToggleGroup
+                                            type="multiple"
+                                            variant="outline"
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            {SIZES_LETTERS.map(size => (
+                                                <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
+                                                    {size}
+                                                </ToggleGroupItem>
+                                            ))}
+                                        </ToggleGroup>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => field.onChange(["U"])}
+                                        >
+                                            Talle Único
+                                        </Button>
+                                    </div>
                                      <ToggleGroup
                                         type="multiple"
                                         variant="outline"

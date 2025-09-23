@@ -180,7 +180,7 @@ export default function OrderSummaryPage() {
                     <div className="text-muted-foreground">
                         <p>{order.firstName} {order.lastName}</p>
                         <p>{order.address}</p>
-                        <p>{order.city}, {order.postalCode}</p>
+                        <p>{order.city}</p>
                          <p>{order.phone}</p>
                     </div>
                 </div>

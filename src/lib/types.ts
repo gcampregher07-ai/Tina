@@ -48,7 +48,6 @@ export type Order = {
     phone: string;
     address: string;
     city: string;
-    postalCode: string;
     items: CartItem[];
     total: number;
     createdAt: Date;

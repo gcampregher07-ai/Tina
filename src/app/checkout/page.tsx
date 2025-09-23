@@ -26,7 +26,6 @@ const customerInfoSchema = z.object({
   phone: z.string().min(6, "Teléfono es requerido."),
   address: z.string().min(5, "Dirección es requerida."),
   city: z.string().min(2, "Ciudad es requerida."),
-  postalCode: z.string().min(4, "Código Postal es requerido."),
 });
 
 type CustomerInfoValues = z.infer<typeof customerInfoSchema>;
@@ -46,7 +45,6 @@ export default function CheckoutPage() {
       phone: "",
       address: "",
       city: "",
-      postalCode: "",
     }
   });
 
@@ -132,14 +130,9 @@ export default function CheckoutPage() {
                     <FormField control={form.control} name="address" render={({ field }) => (
                         <FormItem><FormLabel>Dirección</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField control={form.control} name="city" render={({ field }) => (
-                            <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="postalCode" render={({ field }) => (
-                            <FormItem><FormLabel>Código Postal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                    </div>
+                    <FormField control={form.control} name="city" render={({ field }) => (
+                        <FormItem><FormLabel>Ciudad</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
                   </form>
                 </Form>
               </CardContent>

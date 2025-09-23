@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No hay artículos en el carrito." }, { status: 400 });
     }
 
-    if (!customerInfo || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.phone || !customerInfo.address || !customerInfo.city || !customerInfo.postalCode) {
+    if (!customerInfo || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.phone || !customerInfo.address || !customerInfo.city) {
         return NextResponse.json({ error: "Falta información del cliente." }, { status: 400 });
     }
     

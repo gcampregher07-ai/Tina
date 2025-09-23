@@ -188,7 +188,7 @@ export default function OrderDetailPage() {
                     <address className="grid gap-0.5 not-italic text-muted-foreground">
                     <span>{order.firstName} {order.lastName}</span>
                     <span>{order.address}</span>
-                    <span>{order.city}, {order.postalCode}</span>
+                    <span>{order.city}</span>
                     </address>
                 </div>
                 <div className="grid gap-2">

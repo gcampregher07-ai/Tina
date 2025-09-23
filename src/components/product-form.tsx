@@ -28,38 +28,10 @@ import type { Product, Category, StockItem } from "@/lib/types"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { ImageUploader } from "./image-uploader"
+import ColorPicker from "./ColorPicker";
 
 const SIZES_LETTERS = ["S", "M", "L", "XL"];
 const SIZES_NUMBERS = ["34", "36", "38", "40", "42", "44", "46"];
-const COLORS = [
-    "negro", "azul", "marrón", "gris", "verde", "naranja", "rosa", "púrpura", 
-    "rojo", "blanco", "amarillo", "turquesa", "verde menta", "magenta", 
-    "beige", "rosado", "verde oscuro", "lila", "azul claro", "melocotón", "violeta"
-];
-const colorNameToTailwind: { [key: string]: string } = {
-    'negro': 'bg-black',
-    'azul': 'bg-blue-500',
-    'marrón': 'bg-yellow-900',
-    'gris': 'bg-gray-500',
-    'verde': 'bg-green-500',
-    'naranja': 'bg-orange-500',
-    'rosa': 'bg-pink-500',
-    'púrpura': 'bg-purple-500',
-    'rojo': 'bg-red-500',
-    'blanco': 'bg-white border',
-    'amarillo': 'bg-yellow-500',
-    'turquesa': 'bg-cyan-500',
-    'verde menta': 'bg-emerald-300',
-    'magenta': 'bg-fuchsia-500',
-    'beige': 'bg-amber-200',
-    'rosado': 'bg-rose-400',
-    'verde oscuro': 'bg-green-800',
-    'lila': 'bg-violet-400',
-    'azul claro': 'bg-sky-400',
-    'melocotón': 'bg-orange-300',
-    'violeta': 'bg-violet-600',
-};
-
 
 const stockItemSchema = z.object({
   size: z.string(),
@@ -74,7 +46,7 @@ const productSchema = z.object({
   categoryId: z.string().nonempty("Por favor, selecciona una categoría."),
   imageUrls: z.array(z.string().url()).max(4, "Puedes subir un máximo de 4 imágenes.").optional().default([]),
   sizes: z.array(z.string()).nonempty("Debe seleccionar al menos un talle"),
-  colors: z.array(z.string()).nonempty("Debe seleccionar al menos un color"),
+  colors: z.array(z.string()).length(1, "Debe seleccionar un color"),
   stock: z.array(stockItemSchema).nonempty("Debe ingresar stock para talles y colores"),
 })
 
@@ -123,8 +95,8 @@ function StockInputs() {
         return (
           <div key={field.id} className="flex items-center justify-between gap-4 p-2 rounded bg-background">
             <div className="flex items-center gap-2">
-               <div className={cn("w-4 h-4 rounded-full border", colorNameToTailwind[field.color.toLowerCase()] || 'bg-gray-400')}></div>
-               <span className="font-medium text-sm capitalize">{field.color} / {field.size}</span>
+               <div className="w-4 h-4 rounded-full border" style={{backgroundColor: field.color, textShadow: '0 0 2px rgba(0,0,0,0.5)'}}></div>
+               <span className="font-medium text-sm capitalize">{field.size}</span>
             </div>
             <Controller
                 control={control}
@@ -320,28 +292,16 @@ export function ProductForm({ product }: { product?: Product }) {
                         name="colors"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Colores</FormLabel>
-                                <FormControl>
-                                    <ToggleGroup
-                                        type="multiple"
-                                        variant="outline"
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                        className="flex flex-wrap justify-start gap-2"
-                                    >
-                                        {COLORS.map(color => (
-                                            <ToggleGroupItem
-                                                key={color}
-                                                value={color}
-                                                aria-label={`Color ${color}`}
-                                                className={cn("w-8 h-8 rounded-full p-0 border-2", field.value?.includes(color) ? 'border-ring' : 'border-transparent')}
-                                            >
-                                                <div className={cn("w-6 h-6 rounded-full", colorNameToTailwind[color.toLowerCase()] || 'bg-gray-400')}></div>
-                                            </ToggleGroupItem>
-                                        ))}
-                                    </ToggleGroup>
-                                </FormControl>
-                                <FormMessage className="pt-2" />
+                            <FormLabel>Color Principal</FormLabel>
+                            <FormControl>
+                                <ColorPicker
+                                initialColor={field.value && field.value.length > 0 ? field.value[0] : "#000000"}
+                                onColorChange={(colorHex) => {
+                                    setValue("colors", [colorHex], { shouldValidate: true, shouldDirty: true });
+                                }}
+                                />
+                            </FormControl>
+                            <FormMessage />
                             </FormItem>
                         )}
                     />
@@ -441,5 +401,3 @@ export function ProductForm({ product }: { product?: Product }) {
     </FormProvider>
   )
 }
-
-    

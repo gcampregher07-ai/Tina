@@ -1,23 +1,22 @@
 
 import { NextResponse } from 'next/server';
 import { adminDb } from "@/lib/firebaseAdmin";
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
-});
+import { addOrder } from '@/lib/firestore';
+import type { CartItem, Order } from '@/lib/types';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(req: Request) {
   try {
-    const { cartItems } = await req.json();
+    const { cartItems, customerInfo } = await req.json();
 
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
       return NextResponse.json({ error: "No hay artículos en el carrito." }, { status: 400 });
     }
-    
-    // Determine the base URL from the request headers
-    const origin = req.headers.get('origin') || 'http://localhost:3000';
 
+    if (!customerInfo || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.phone || !customerInfo.address || !customerInfo.city || !customerInfo.postalCode) {
+        return NextResponse.json({ error: "Falta información del cliente." }, { status: 400 });
+    }
+    
     // Transaction to update stock
     await adminDb.runTransaction(async (transaction) => {
       for (const item of cartItems) {
@@ -55,32 +54,23 @@ export async function POST(req: Request) {
         transaction.update(productRef, { stock: newStock });
       }
     });
+    
+    const total = cartItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
 
-    // Create Stripe Checkout Session
-    const line_items = cartItems.map((item: any) => ({
-      price_data: {
-        currency: "ars",
-        product_data: { 
-            name: `${item.name} (${item.size} / ${item.color})`,
-            images: item.imageUrls && item.imageUrls.length > 0 ? [item.imageUrls[0]] : []
-        },
-        unit_amount: Math.round(item.price * 100), // Price in cents
-      },
-      quantity: item.quantity,
-    }));
+    const newOrder: Omit<Order, 'id'> = {
+        ...customerInfo,
+        items: cartItems,
+        total,
+        createdAt: Timestamp.now().toDate(),
+        status: 'Completado'
+    };
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items,
-      mode: "payment",
-      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/checkout/cancel`,
-    });
+    const docRef = await addOrder(newOrder);
 
-    return NextResponse.json({ sessionId: session.id });
+    return NextResponse.json({ orderId: docRef.id });
+
   } catch (error: any) {
     console.error("[CHECKOUT_ERROR]", error);
-    // Revert stock logic could be added here if needed
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

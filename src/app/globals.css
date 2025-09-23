@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  :root {
+    /* Beige principal nuevo: #D1C6B3 = hsl(39, 21%, 72%) */
+    --background: 0 0% 100%; /* Blanco */
+    --foreground: 0 0% 0%; /* Negro */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    /* Primary nuevo: beige */
+    --primary: 39 21% 72%; /* #D1C6B3 */
+    --primary-foreground: 38 34% 23%; /* color marrón oscuro para buen contraste (aprox #615842) */
+
+    --secondary: 39 21% 82%; /* Beige claro para secundarios */
+    --secondary-foreground: 38 34% 23%; /* Igual que primary-foreground */
+
+    --muted: 39 21% 90%; /* Beige muy claro */
+    --muted-foreground: 0 0% 40%; /* Gris medio */
+
+    /* Accent (marrón) */
+    --accent: 27 20% 34%; /* Marrón oscuro, un poco más saturado para good contraste */
+    --accent-foreground: 0 0% 98%; /* Blanco cercano */
+
+    /* Destructive (rojo) */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%; 
+
+    --border: 39 21% 85%; /* beige pálido */
+    --input: 0 0% 92.8%;
+    --ring: 27 20% 34%; /* Marrón para rings */
+
+    --chart-1: 27 70% 59%; /* Marrón más saturado */
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 39 21% 72%;
+    --sidebar-primary-foreground: 38 34% 23%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 39 21% 72%;
+  }
+
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 39 21% 72%;
+    --primary-foreground: 38 34% 23%;
+
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 27 20% 45%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 39 21% 72%;
+
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 12%;
+
+    --sidebar-primary: 27 20% 34%;
+    --sidebar-primary-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

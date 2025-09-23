@@ -1,0 +1,9 @@
+
+[
+  {
+    "origin": ["http://localhost:3000", "https://*.firebase.dev", "https://*.web.app", "https://ventaunica.web.app"],
+    "method": ["PUT", "GET"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

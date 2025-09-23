@@ -1,0 +1,28 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    // Allow public read access to products, categories, and site settings
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    match /site_settings/{settingId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Allow anyone to create an order, but only admins to view/update/delete them
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

@@ -15,6 +15,9 @@ import { Footer } from "@/components/footer";
 import { CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// NOTA: Usando el número de la tienda ya definido en otras partes del sitio.
+const numeroWhatsapp = "5493584922453";
+
 function OrderSummarySkeleton() {
     return (
         <div className="flex flex-col min-h-screen">
@@ -71,9 +74,9 @@ function OrderSummarySkeleton() {
     );
 }
 
+
 export default function OrderSummaryPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -96,6 +99,27 @@ export default function OrderSummaryPage() {
       .finally(() => setLoading(false));
   }, [params.id]);
 
+  useEffect(() => {
+    if (!loading && order) {
+      // Crear resumen de productos
+      const resumenProductos = order.items
+        .map(item => `${item.quantity}x ${item.name}${item.size && item.size !== 'U' ? ` Talle: ${item.size}` : ""}${item.color ? ` Color` : ""}`) // Adaptado para no mostrar color
+        .join("\n- ");
+
+      const mensaje = `¡Hola! Acabo de hacer un pedido a través de la web.\n\n*ID del Pedido:* ${order.id}\n\n*Resumen:*\n- ${resumenProductos}\n\n*Total:* ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(order.total)}\n\n*Mis datos:*\n- Nombre: ${order.firstName} ${order.lastName}\n- Dirección: ${order.address}, ${order.city}\n- Teléfono: ${order.phone}\n\n¡Gracias!`;
+
+      const mensajeCodificado = encodeURIComponent(mensaje);
+      const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${mensajeCodificado}`;
+
+      // Redirección automática a WhatsApp después de 3 segundos
+      const timer = setTimeout(() => {
+        window.location.href = urlWhatsapp;
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, order]);
+
   if (loading) {
     return <OrderSummarySkeleton />;
   }
@@ -106,8 +130,8 @@ export default function OrderSummaryPage() {
   
   const getItemDescription = (item: CartItem) => {
     let description = [];
-    if (item.size) description.push(`Talle: ${item.size}`);
-    if (item.color) description.push(`Color: ${item.color}`);
+    if (item.size && item.size !== 'U') description.push(`Talle: ${item.size}`);
+    if (item.color) description.push(`Color`); // Adaptado
     description.push(`Cantidad: ${item.quantity}`);
     return description.join(' - ');
   }
@@ -123,6 +147,7 @@ export default function OrderSummaryPage() {
                  <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
                 <CardTitle className="text-3xl mt-4 text-green-700">¡Gracias por tu pedido!</CardTitle>
                 <p className="text-muted-foreground">Tu pedido ha sido confirmado.</p>
+                <p className="text-muted-foreground mt-2">En instantes serás redirigido a WhatsApp para finalizar...</p>
                 <p className="text-sm text-muted-foreground pt-2">ID del Pedido: {order.id}</p>
               </CardHeader>
               <CardContent className="p-6 space-y-6">

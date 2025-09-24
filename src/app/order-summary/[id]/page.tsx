@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, notFound, useRouter } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getOrder } from "@/lib/firestore";
@@ -74,7 +74,6 @@ function OrderSummarySkeleton() {
     );
 }
 
-
 export default function OrderSummaryPage() {
   const params = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
@@ -89,11 +88,7 @@ export default function OrderSummaryPage() {
     
     getOrder(params.id)
       .then((orderData) => {
-        if (!orderData) {
-            setOrder(null);
-        } else {
-          setOrder(orderData);
-        }
+        setOrder(orderData || null);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -101,22 +96,23 @@ export default function OrderSummaryPage() {
 
   useEffect(() => {
     if (!loading && order) {
-      // Crear resumen de productos
       const resumenProductos = order.items
-        .map(item => `${item.quantity}x ${item.name}${item.size && item.size !== 'U' ? ` Talle: ${item.size}` : ""}${item.color ? ` Color` : ""}`) // Adaptado para no mostrar color
-        .join("\n- ");
+        .map(
+          (item) =>
+            `${item.quantity}x ${item.name}${item.size ? ` Talle: ${item.size}` : ""}${
+              item.color ? ` Color: ${item.color}` : ""
+            }`
+        )
+        .join(", ");
 
-      const mensaje = `¡Hola! Acabo de hacer un pedido a través de la web.\n\n*ID del Pedido:* ${order.id}\n\n*Resumen:*\n- ${resumenProductos}\n\n*Total:* ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(order.total)}\n\n*Mis datos:*\n- Nombre: ${order.firstName} ${order.lastName}\n- Dirección: ${order.address}, ${order.city}\n- Teléfono: ${order.phone}\n\n¡Gracias!`;
+      const mensaje = `Hola, hice un pedido con estos productos: ${resumenProductos}. Dirección de envío: ${order.address}, ${order.city}. Contacto: ${order.firstName} ${order.lastName}, Teléfono: ${order.phone}. ID pedido: ${order.id}`;
 
       const mensajeCodificado = encodeURIComponent(mensaje);
       const urlWhatsapp = `https://wa.me/${numeroWhatsapp}?text=${mensajeCodificado}`;
 
-      // Redirección automática a WhatsApp después de 3 segundos
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         window.location.href = urlWhatsapp;
-      }, 3000);
-
-      return () => clearTimeout(timer);
+      }, 2000);
     }
   }, [loading, order]);
 
@@ -125,16 +121,23 @@ export default function OrderSummaryPage() {
   }
 
   if (!order) {
-    notFound();
+    return (
+      <div className="flex flex-col min-h-screen justify-center items-center">
+        <p className="text-lg text-red-600">Pedido no encontrado o inválido.</p>
+        <Link href="/products" className="text-blue-600 underline mt-4">
+          Volver a productos
+        </Link>
+      </div>
+    );
   }
-  
+
   const getItemDescription = (item: CartItem) => {
     let description = [];
-    if (item.size && item.size !== 'U') description.push(`Talle: ${item.size}`);
-    if (item.color) description.push(`Color`); // Adaptado
+    if (item.size) description.push(`Talle: ${item.size}`);
+    if (item.color) description.push(`Color: ${item.color}`);
     description.push(`Cantidad: ${item.quantity}`);
-    return description.join(' - ');
-  }
+    return description.join(" - ");
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -144,10 +147,9 @@ export default function OrderSummaryPage() {
           <div className="max-w-2xl mx-auto">
             <Card>
               <CardHeader className="text-center bg-green-50/50 py-8">
-                 <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
+                <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
                 <CardTitle className="text-3xl mt-4 text-green-700">¡Gracias por tu pedido!</CardTitle>
                 <p className="text-muted-foreground">Tu pedido ha sido confirmado.</p>
-                <p className="text-muted-foreground mt-2">En instantes serás redirigido a WhatsApp para finalizar...</p>
                 <p className="text-sm text-muted-foreground pt-2">ID del Pedido: {order.id}</p>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
@@ -158,22 +160,18 @@ export default function OrderSummaryPage() {
                       <div key={item.id} className="flex items-center gap-4">
                         <div className="relative h-16 w-16 rounded-md overflow-hidden border">
                           {item.imageUrls && item.imageUrls.length > 0 && (
-                            <Image
-                                src={item.imageUrls[0]}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                            />
+                            <Image src={item.imageUrls[0]} alt={item.name} fill className="object-cover" />
                           )}
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getItemDescription(item)}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{getItemDescription(item)}</p>
                         </div>
                         <p className="font-medium">
-                          {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price * item.quantity)}
+                          {new Intl.NumberFormat("es-AR", {
+                            style: "currency",
+                            currency: "ARS",
+                          }).format(item.price * item.quantity)}
                         </p>
                       </div>
                     ))}
@@ -185,31 +183,42 @@ export default function OrderSummaryPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(order.total)}</span>
+                    <span>
+                      {new Intl.NumberFormat("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                      }).format(order.total)}
+                    </span>
                   </div>
-                   <div className="flex justify-between">
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Envío</span>
                     <span className="text-green-600 font-medium">Gratis</span>
                   </div>
-                  <Separator className="my-2"/>
+                  <Separator className="my-2" />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(order.total)}</span>
+                    <span>
+                      {new Intl.NumberFormat("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                      }).format(order.total)}
+                    </span>
                   </div>
                 </div>
 
                 <Separator />
 
                 <div>
-                    <h3 className="font-semibold text-lg mb-2">Dirección de Envío y Contacto</h3>
-                    <div className="text-muted-foreground">
-                        <p>{order.firstName} {order.lastName}</p>
-                        <p>{order.address}</p>
-                        <p>{order.city}</p>
-                         <p>{order.phone}</p>
-                    </div>
+                  <h3 className="font-semibold text-lg mb-2">Dirección de Envío y Contacto</h3>
+                  <div className="text-muted-foreground">
+                    <p>
+                      {order.firstName} {order.lastName}
+                    </p>
+                    <p>{order.address}</p>
+                    <p>{order.city}</p>
+                    <p>{order.phone}</p>
+                  </div>
                 </div>
-
               </CardContent>
               <CardFooter className="flex justify-center p-6">
                 <Button asChild>
@@ -224,3 +233,5 @@ export default function OrderSummaryPage() {
     </div>
   );
 }
+
+    

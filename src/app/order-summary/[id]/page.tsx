@@ -99,7 +99,7 @@ export default function OrderSummaryPage() {
       const resumenProductos = order.items
         .map(
           (item) =>
-            `${item.quantity}x ${item.name}${item.size ? ` Talle: ${item.size}` : ""}${
+            `${item.quantity}x ${item.name} (${new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(item.price)})${item.size ? ` Talle: ${item.size}` : ""}${
               item.color ? ` Color: ${item.color}` : ""
             }`
         )
@@ -233,5 +233,3 @@ export default function OrderSummaryPage() {
     </div>
   );
 }
-
-    

@@ -1,29 +1,31 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permite la lectura pública para categorías y productos.
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Solo administradores autenticados pueden escribir
-    }
 
+    // Allow public read access for products and categories
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null; // Solo administradores autenticados pueden escribir
+      allow write: if request.auth != null; // Only admins can write
     }
-    
-    // Permite la lectura pública para la configuración del sitio (como el banner).
-    match /site_settings/{settingId} {
-        allow read: if true;
-        allow write: if request.auth != null; // Solo administradores autenticados pueden escribir
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null; // Only admins can write
     }
 
-    // Permite a cualquier usuario leer un pedido específico (para la página de resumen de pedido),
-    // pero no permite listar todos los pedidos.
+    // Allow public read for individual orders, but restrict list/write to admins
     match /orders/{orderId} {
-      allow get: if true;
-      allow list, create, update, delete: if request.auth != null; // Solo administradores autenticados para otras operaciones
+      allow get: if true; // Anyone can get a single order (for summary page)
+      allow list, create, update, delete: if request.auth != null; // Only admins can manage orders
+    }
+    
+    // Allow admin read/write to site settings
+    match /site_settings/{settingId} {
+        allow read, write: if request.auth != null;
+    }
+
+    // Default deny for any other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

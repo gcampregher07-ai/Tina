@@ -59,7 +59,7 @@ function AppShellMobileNav() {
     return (
         <nav className="grid gap-6 text-lg font-medium">
             <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
-                <TinaLogo width="120" height="40" />
+                <TinaLogo width="120" height="40" priority />
             </Link>
             {navItems.map((item) => (
                 <Link
@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-              <TinaLogo width="120" height="40"/>
+              <TinaLogo width={180} height={60} priority className="h-10 w-auto"/>
               <span className="sr-only">Tina Clothing</span>
             </Link>
           </div>

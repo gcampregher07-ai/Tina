@@ -45,7 +45,7 @@ export function Header({ categories }: { categories: Category[] }) {
             <SheetHeader>
                 <SheetTitle>
                     <Link href="/" className="flex items-center gap-2 font-semibold text-lg">
-                        <TinaLogo width="100" height="32" />
+                        <TinaLogo width="120" height="40" priority />
                     </Link>
                 </SheetTitle>
             </SheetHeader>
@@ -69,8 +69,8 @@ export function Header({ categories }: { categories: Category[] }) {
             </div>
           </SheetContent>
         </Sheet>
-        <Link href="/" className="font-bold text-lg hidden lg:block">
-          <TinaLogo width="120" height="40" />
+        <Link href="/" className="hidden lg:block">
+          <TinaLogo width={180} height={60} priority className="h-12 w-auto" />
         </Link>
       </div>
 

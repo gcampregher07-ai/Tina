@@ -7,14 +7,16 @@ type TinaLogoProps = {
   height?: string | number;
   src?: string;
   alt?: string;
+  priority?: boolean;
 };
 
 export function TinaLogo({ 
     className, 
-    width = 80, 
-    height = 80, 
+    width = 180, 
+    height = 60, 
     src = "/logo.svg",
     alt = "Tina Clothing",
+    priority = false,
     ...props 
 }: TinaLogoProps) {
     return (
@@ -23,6 +25,7 @@ export function TinaLogo({
             alt={alt}
             width={Number(width)}
             height={Number(height)}
+            priority={priority}
             className={cn("object-contain", className)}
             role="img"
             {...props}

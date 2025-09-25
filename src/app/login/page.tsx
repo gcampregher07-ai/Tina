@@ -50,7 +50,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/40">
       <div className="mb-8">
         <Link href="/" className="flex items-center gap-2 text-foreground">
-           <TinaLogo width="180" height="60" />
+           <TinaLogo width="180" height="60" priority />
         </Link>
       </div>
       <Card className="w-full max-w-sm">

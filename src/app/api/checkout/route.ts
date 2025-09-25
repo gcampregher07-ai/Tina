@@ -3,8 +3,6 @@ import { NextResponse } from 'next/server';
 import { adminDb } from "@/lib/firebaseAdmin";
 import type { CartItem, Order } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 async function addOrder(order: Omit<Order, 'id'>) {
   try {

@@ -38,7 +38,7 @@ if (!admin.apps.length) {
 const adminAuth: Auth = admin.auth();
 const adminStorage: Storage = admin.storage();
 const adminDb: Firestore = admin.firestore();
-const bucket: Bucket = admin.storage().bucket();
+const bucket: Bucket | null = admin.apps.length ? admin.storage().bucket() : null;
 
 
 export { adminAuth, adminStorage, adminDb, bucket };

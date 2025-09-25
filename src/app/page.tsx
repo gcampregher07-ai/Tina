@@ -30,11 +30,11 @@ export default function Home() {
     async function fetchData() {
       try {
         const [productsData, categoriesData, heroDataFromDb] = await Promise.all([
-          getProducts(),
+          getProducts(4), // Fetch only 4 featured products
           getCategories(),
           getHeroData(),
         ]);
-        setProducts(productsData);
+        setProducts(productsData.products);
         setCategories(categoriesData);
         setHeroData(heroDataFromDb ?? initialHeroData);
       } catch (error) {
@@ -48,7 +48,7 @@ export default function Home() {
   }, []);
   
 
-  const featuredProducts = products.slice(0, 4);
+  const featuredProducts = products;
 
   return (
     <div className="flex flex-col min-h-screen">

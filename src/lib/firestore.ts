@@ -17,8 +17,21 @@ export async function addCategory(category: Omit<Category, 'id'>): Promise<Categ
 }
 
 // Products
-export async function getProducts(): Promise<Product[]> {
-    const querySnapshot = await getDocs(collection(db, 'products'));
+export async function getProducts(pageSize = 24, startAfterDocId?: string): Promise<{ products: Product[], lastDocId: string | null }> {
+    let q;
+    if (startAfterDocId) {
+        const startDocRef = doc(db, "products", startAfterDocId);
+        const startSnap = await getDoc(startDocRef);
+        if (!startSnap.exists()) {
+            q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
+        } else {
+            q = query(collection(db, "products"), orderBy("name"), startAfter(startSnap), limit(pageSize));
+        }
+    } else {
+        q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
+    }
+
+    const querySnapshot = await getDocs(q);
     const products = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
         const productData = docSnapshot.data() as Omit<Product, 'id' | 'category'>;
         let category: Category | undefined = undefined;
@@ -39,7 +52,9 @@ export async function getProducts(): Promise<Product[]> {
             category,
         };
     }));
-    return products;
+    
+    const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+    return { products, lastDocId: lastDoc ? lastDoc.id : null };
 }
 
 export async function getProduct(id: string): Promise<Product | null> {

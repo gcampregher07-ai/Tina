@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -17,11 +18,11 @@ interface ProductImageCarouselProps {
 
 export default function ProductImageCarousel({ images }: ProductImageCarouselProps) {
   if (!images || images.length === 0) {
-    return <div className="flex items-center justify-center h-48 text-muted-foreground">Sin imágenes</div>;
+    return <div className="flex aspect-square w-full items-center justify-center bg-muted text-muted-foreground">Sin imágenes</div>;
   }
 
   return (
-    <div className="w-full h-[300px] relative">
+    <div className="w-full aspect-square relative">
       <Carousel
         swipeable
         draggable={false}
@@ -38,13 +39,13 @@ export default function ProductImageCarousel({ images }: ProductImageCarouselPro
         itemClass="carousel-item-padding-40-px"
       >
         {images.map((url, index) => (
-          <div key={index} className="relative w-full h-[300px]">
+          <div key={index} className="relative w-full h-full">
             <Image
               src={url}
               alt={`Producto imagen ${index + 1}`}
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 700px"
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 500px"
               priority={index === 0} // Prioriza la primera imagen para mejorar la carga
             />
           </div>

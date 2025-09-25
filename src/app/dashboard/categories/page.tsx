@@ -67,12 +67,12 @@ export default function CategoriesPage() {
     const fetchCategoriesAndProducts = async () => {
         setLoading(true);
         try {
-            const [categoriesData, productsData] = await Promise.all([
+            const [categoriesData, productsResponse] = await Promise.all([
                 getCategories(),
                 getProducts()
             ]);
-            setCategories(categoriesData);
-            setProducts(productsData);
+            setCategories(categoriesData || []);
+            setProducts(productsResponse?.products || []);
         } catch (error) {
             console.error("Error fetching data:", error);
              toast({
@@ -140,6 +140,7 @@ export default function CategoriesPage() {
     }
 
   const getProductCount = (categoryId: string) => {
+    if (!products || !Array.isArray(products)) return 0;
     return products.filter(p => p.categoryId === categoryId).length;
   }
   

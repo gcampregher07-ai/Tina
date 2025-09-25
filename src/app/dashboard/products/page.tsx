@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -41,8 +42,8 @@ export default function DashboardProductsPage() {
           getProducts(),
           getCategories(),
         ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
+        setProducts(productsData?.products || []);
+        setCategories(categoriesData || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

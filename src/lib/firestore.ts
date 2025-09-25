@@ -6,9 +6,14 @@ import type { Product, Category, HeroData, Order } from './types';
 
 // Categories
 export async function getCategories(): Promise<Category[]> {
-  const querySnapshot = await getDocs(collection(db, 'categories'));
-  const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
-  return categories;
+  try {
+    const querySnapshot = await getDocs(collection(db, 'categories'));
+    const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
+    return categories;
+  } catch (error) {
+    console.error("Error fetching categories: ", error);
+    return []; // Devuelve un array vacío en caso de error
+  }
 }
 
 export async function addCategory(category: Omit<Category, 'id'>): Promise<Category> {
@@ -18,43 +23,48 @@ export async function addCategory(category: Omit<Category, 'id'>): Promise<Categ
 
 // Products
 export async function getProducts(pageSize = 24, startAfterDocId?: string): Promise<{ products: Product[], lastDocId: string | null }> {
-    let q;
-    if (startAfterDocId) {
-        const startDocRef = doc(db, "products", startAfterDocId);
-        const startSnap = await getDoc(startDocRef);
-        if (!startSnap.exists()) {
-            q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
-        } else {
-            q = query(collection(db, "products"), orderBy("name"), startAfter(startSnap), limit(pageSize));
-        }
-    } else {
-        q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
-    }
-
-    const querySnapshot = await getDocs(q);
-    const products = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
-        const productData = docSnapshot.data() as Omit<Product, 'id' | 'category'>;
-        let category: Category | undefined = undefined;
-        if (productData.categoryId) {
-            try {
-                const catDoc = await getDoc(doc(db, 'categories', productData.categoryId));
-                if (catDoc.exists()) {
-                    category = { id: catDoc.id, ...catDoc.data() } as Category;
-                }
-            } catch (e) {
-                console.error(`Could not fetch category ${productData.categoryId}`, e);
+    try {
+        let q;
+        if (startAfterDocId) {
+            const startDocRef = doc(db, "products", startAfterDocId);
+            const startSnap = await getDoc(startDocRef);
+            if (!startSnap.exists()) {
+                q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
+            } else {
+                q = query(collection(db, "products"), orderBy("name"), startAfter(startSnap), limit(pageSize));
             }
+        } else {
+            q = query(collection(db, "products"), orderBy("name"), limit(pageSize));
         }
-        return {
-            id: docSnapshot.id,
-            ...productData,
-            imageUrls: productData.imageUrls || [],
-            category,
-        };
-    }));
-    
-    const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-    return { products, lastDocId: lastDoc ? lastDoc.id : null };
+
+        const querySnapshot = await getDocs(q);
+        const products = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
+            const productData = docSnapshot.data() as Omit<Product, 'id' | 'category'>;
+            let category: Category | undefined = undefined;
+            if (productData.categoryId) {
+                try {
+                    const catDoc = await getDoc(doc(db, 'categories', productData.categoryId));
+                    if (catDoc.exists()) {
+                        category = { id: catDoc.id, ...catDoc.data() } as Category;
+                    }
+                } catch (e) {
+                    console.error(`Could not fetch category ${productData.categoryId}`, e);
+                }
+            }
+            return {
+                id: docSnapshot.id,
+                ...productData,
+                imageUrls: productData.imageUrls || [],
+                category,
+            };
+        }));
+        
+        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+        return { products, lastDocId: lastDoc ? lastDoc.id : null };
+    } catch(error) {
+        console.error("Error fetching products: ", error);
+        return { products: [], lastDocId: null }; // Devuelve un objeto con un array vacío en caso de error
+    }
 }
 
 export async function getProduct(id: string): Promise<Product | null> {

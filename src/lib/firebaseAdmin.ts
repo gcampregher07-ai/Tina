@@ -12,11 +12,6 @@ const serviceAccount: ServiceAccount = {
     privateKey,
 };
 
-let adminAuth: Auth;
-let adminStorage: Storage;
-let adminDb: Firestore;
-let bucket: Bucket | null = null;
-
 if (!admin.apps.length) {
   try {
     const storageBucketName = process.env.FIREBASE_STORAGE_BUCKET;
@@ -40,13 +35,10 @@ if (!admin.apps.length) {
   }
 }
 
-try {
-    adminAuth = admin.auth();
-    adminStorage = admin.storage();
-    adminDb = admin.firestore();
-    bucket = adminStorage.bucket();
-} catch (error) {
-    console.error("No se pudo obtener una instancia de los servicios de Firebase Admin. ¿Se inicializó correctamente?", error);
-}
+const adminAuth: Auth = admin.auth();
+const adminStorage: Storage = admin.storage();
+const adminDb: Firestore = admin.firestore();
+const bucket: Bucket = admin.storage().bucket();
+
 
 export { adminAuth, adminStorage, adminDb, bucket };

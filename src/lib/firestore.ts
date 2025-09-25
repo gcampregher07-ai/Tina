@@ -1,6 +1,6 @@
 
 import { db, storage } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { ref, deleteObject } from "firebase/storage";
 import type { Product, Category, HeroData, Order } from './types';
 
@@ -119,17 +119,30 @@ export async function saveHeroData(heroData: HeroData): Promise<void> {
 }
 
 // Orders (Client SDK)
-export async function getOrders(): Promise<Order[]> {
-  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-  const querySnapshot = await getDocs(q);
-  const orders = querySnapshot.docs.map((doc) => {
-    const data = doc.data();
-    // Firestore Timestamps need to be converted to JS Dates
-    const createdAt = data.createdAt.toDate();
-    return { id: doc.id, ...data, createdAt } as Order;
+export async function getOrders(pageSize = 20, startAfterDocId?: string): Promise<{ orders: Order[], lastDocId: string | null }> {
+  let q;
+  if (startAfterDocId) {
+    const startDocRef = doc(db, "orders", startAfterDocId);
+    const startSnap = await getDoc(startDocRef);
+    if (!startSnap.exists()) {
+      q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(pageSize));
+    } else {
+      q = query(collection(db, "orders"), orderBy("createdAt", "desc"), startAfter(startSnap), limit(pageSize));
+    }
+  } else {
+    q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(pageSize));
+  }
+
+  const snap = await getDocs(q);
+  const orders = snap.docs.map(docSnap => {
+    const data = docSnap.data();
+    return { id: docSnap.id, ...data, createdAt: data.createdAt?.toDate?.() || new Date() } as Order;
   });
-  return orders;
+
+  const lastDoc = snap.docs[snap.docs.length - 1];
+  return { orders, lastDocId: lastDoc ? lastDoc.id : null };
 }
+
 
 export async function getOrder(id: string): Promise<Order | null> {
     try {

@@ -49,18 +49,28 @@ import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 
+const PAGE_SIZE = 20;
+
 export default function OrdersPage() {
     const [orders, setOrders] = React.useState<Order[]>([]);
     const [loading, setLoading] = React.useState(true);
+    const [lastId, setLastId] = React.useState<string | null>(null);
+    const [loadingMore, setLoadingMore] = React.useState(false);
+    const [totalOrders, setTotalOrders] = React.useState(0);
     const { toast } = useToast();
 
     React.useEffect(() => {
-        const fetchOrders = async () => {
+        let mounted = true;
+        async function load() {
+            setLoading(true);
             try {
-                const ordersData = await getOrders();
-                setOrders(ordersData);
+                const res = await getOrders(PAGE_SIZE);
+                if (!mounted) return;
+                setOrders(res.orders);
+                setLastId(res.lastDocId);
+                setTotalOrders(res.orders.length);
             } catch (error) {
-                console.error("Error fetching orders:", error);
+                 console.error("Error fetching orders:", error);
                 toast({
                     variant: "destructive",
                     title: "Error al cargar los pedidos",
@@ -69,9 +79,30 @@ export default function OrdersPage() {
             } finally {
                 setLoading(false);
             }
-        };
-        fetchOrders();
+        }
+        load();
+        return () => { mounted = false; }
     }, [toast]);
+
+    const loadMore = async () => {
+        if (!lastId || loadingMore) return;
+        setLoadingMore(true);
+        try {
+            const res = await getOrders(PAGE_SIZE, lastId);
+            setOrders(prev => [...prev, ...res.orders]);
+            setLastId(res.lastDocId);
+            setTotalOrders(prev => prev + res.orders.length);
+        } catch(error) {
+             console.error("Error fetching more orders:", error);
+             toast({
+                variant: "destructive",
+                title: "Error al cargar más pedidos",
+                description: "No se pudieron cargar más pedidos. Inténtalo de nuevo.",
+            });
+        } finally {
+            setLoadingMore(false);
+        }
+    };
     
   return (
     <AppShell>
@@ -178,9 +209,22 @@ export default function OrdersPage() {
                     )}
                 </CardContent>
                  <CardFooter>
-                    <div className="text-xs text-muted-foreground" dangerouslySetInnerHTML={{ __html: !loading && `Mostrando <strong>${Math.min(1, orders.length)}-${orders.length}</strong> de <strong>${orders.length}</strong> pedidos` }} />
+                    <div className="text-xs text-muted-foreground" dangerouslySetInnerHTML={{ __html: !loading && `Mostrando <strong>${orders.length}</strong> pedidos` }} />
                 </CardFooter>
             </Card>
+            {!loading && (
+                 <>
+                 {lastId ? (
+                    <div className="text-center my-4">
+                        <Button onClick={loadMore} disabled={loadingMore}>
+                        {loadingMore ? "Cargando..." : "Cargar más"}
+                        </Button>
+                    </div>
+                    ) : (
+                    <div className="text-sm text-muted-foreground text-center my-4">No hay más pedidos para mostrar</div>
+                    )}
+                </>
+            )}
           </TabsContent>
         </Tabs>
     </AppShell>

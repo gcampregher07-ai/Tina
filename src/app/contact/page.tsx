@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone } from "lucide-react";
 import Link from "next/link";
+import ContactForm from "@/components/contact-form";
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -80,7 +81,7 @@ export default function ContactPage() {
               los siguientes canales.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
             {contactItems.map((item, index) => (
               <a
                 key={index}
@@ -102,6 +103,9 @@ export default function ContactPage() {
                 </Card>
               </a>
             ))}
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <ContactForm />
           </div>
         </div>
       </main>

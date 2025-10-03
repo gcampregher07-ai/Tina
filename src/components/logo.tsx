@@ -17,7 +17,7 @@ export function TinaLogo({
     height = 60, 
     src = "/logo.svg",
     alt = "Tina Clothing",
-    priority = false,
+    priority = true,
     ...props 
 }: TinaLogoProps) {
     return (
@@ -29,6 +29,7 @@ export function TinaLogo({
             priority={priority}
             className={cn("object-contain", className)}
             role="img"
+            style={{ height: 'auto' }}
             {...props}
         />
     )

@@ -15,22 +15,16 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// This is the correct way to initialize Firebase in Next.js
-// It prevents a race condition where the app tries to initialize
-// before the environment variables are loaded.
-function getFirebaseApp(): FirebaseApp {
-  if (getApps().length) {
-    return getApp();
-  }
-
-  if (!firebaseConfig.apiKey) {
+let app: FirebaseApp;
+if (!getApps().length) {
+    if (!firebaseConfig.apiKey) {
       throw new Error("Missing Firebase API Key. Make sure NEXT_PUBLIC_FIREBASE_API_KEY is set in your .env.local file.");
-  }
-
-  return initializeApp(firebaseConfig);
+    }
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApp();
 }
 
-const app = getFirebaseApp();
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);

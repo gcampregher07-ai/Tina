@@ -7,8 +7,12 @@ import { CartProvider } from '@/lib/cart-context';
 import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { ChunkLoadErrorHandler } from '@/components/chunk-load-error-handler';
-import { WhatsAppButton } from '@/components/whatsapp-button';
 import { LayoutManager } from '@/components/layout-manager';
+import dynamic from 'next/dynamic';
+
+const WhatsAppButton = dynamic(() => import('@/components/whatsapp-button').then(mod => mod.WhatsAppButton), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ['latin'],

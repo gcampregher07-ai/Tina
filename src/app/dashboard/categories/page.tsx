@@ -5,9 +5,20 @@ import {
   MoreHorizontal,
   PlusCircle,
   Database,
+  Trash2,
 } from "lucide-react"
 import { AppShell } from "@/components/app-shell"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   Card,
   CardContent,
@@ -44,7 +55,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { db } from '@/lib/firebase-client';
 import { collection, addDoc as addCategoryDoc, getDocs, query, where } from 'firebase/firestore';
-import { getCategories, addCategory, getProducts } from "@/lib/firestore";
+import { getCategories, addCategory, getProducts, deleteCategory } from "@/lib/firestore";
 import type { Category, Product } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -61,10 +72,13 @@ export default function CategoriesPage() {
     const [categories, setCategories] = React.useState<Category[]>([]);
     const [products, setProducts] = React.useState<Product[]>([]);
     const [loading, setLoading] = React.useState(true);
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+    const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
+    const [isDeleting, setIsDeleting] = React.useState(false);
     const { toast } = useToast();
 
-    const fetchCategoriesAndProducts = async () => {
+    const fetchCategoriesAndProducts = React.useCallback(async () => {
         setLoading(true);
         try {
             const [categoriesData, productsResponse] = await Promise.all([
@@ -83,11 +97,11 @@ export default function CategoriesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [toast]);
 
     React.useEffect(() => {
         fetchCategoriesAndProducts();
-    }, []);
+    }, [fetchCategoriesAndProducts]);
 
     const handleSaveCategory = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -96,7 +110,7 @@ export default function CategoriesPage() {
         if (name) {
             try {
                 await addCategory({ name });
-                setIsDialogOpen(false);
+                setIsAddDialogOpen(false);
                 (event.target as HTMLFormElement).reset();
                 await fetchCategoriesAndProducts();
                 toast({
@@ -144,9 +158,38 @@ export default function CategoriesPage() {
     return products.filter(p => p.categoryId === categoryId).length;
   }
   
-  const handleActionClick = () => {
-    alert("Funcionalidad no implementada todavía.");
+  const handleEditClick = () => {
+    alert("Funcionalidad de editar no implementada todavía.");
   };
+
+  const handleDeleteClick = (category: Category) => {
+    setSelectedCategory(category);
+    setIsDeleteDialogOpen(true);
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCategory) return;
+    setIsDeleting(true);
+    try {
+        await deleteCategory(selectedCategory.id);
+        toast({
+            title: "Categoría eliminada",
+            description: `La categoría "${selectedCategory.name}" se eliminó correctamente.`
+        });
+        setCategories(cats => cats.filter(c => c.id !== selectedCategory.id));
+    } catch (error: any) {
+        console.error("Error deleting category:", error);
+        toast({
+            variant: "destructive",
+            title: "Error al eliminar",
+            description: error.message || "No se pudo eliminar la categoría."
+        });
+    } finally {
+        setIsDeleting(false);
+        setIsDeleteDialogOpen(false);
+        setSelectedCategory(null);
+    }
+  }
 
   return (
     <AppShell>
@@ -162,7 +205,7 @@ export default function CategoriesPage() {
                     Cargar Categorías
                 </span>
             </Button>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
                 <Button size="sm" className="h-8 gap-1">
                 <PlusCircle className="h-3.5 w-3.5" />
@@ -228,8 +271,11 @@ export default function CategoriesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={handleActionClick}>Editar</DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleActionClick} className="text-destructive">Eliminar</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleEditClick}>Editar</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeleteClick(category)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Eliminar
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -257,8 +303,11 @@ export default function CategoriesPage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={handleActionClick}>Editar</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={handleActionClick} className="text-destructive">Eliminar</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={handleEditClick}>Editar</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleDeleteClick(category)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Eliminar
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </CardContent>
@@ -274,6 +323,29 @@ export default function CategoriesPage() {
           </div>
         </CardFooter>
       </Card>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Esta acción no se puede deshacer. Se eliminará la categoría
+                <span className="font-semibold text-foreground"> {selectedCategory?.name}</span>.
+                Esta acción fallará si hay productos asociados a esta categoría.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+                {isDeleting ? "Eliminando..." : "Sí, eliminar categoría"}
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   )
 }

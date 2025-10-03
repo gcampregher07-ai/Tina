@@ -1,14 +1,14 @@
 
 import { db } from './firebase-server';
 import { storage } from './firebase-client';
-import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy, limit, startAfter } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy, limit, startAfter, where } from 'firebase/firestore';
 import { ref, deleteObject } from "firebase/storage";
 import type { Product, Category, HeroData, Order } from './types';
 
 // Categories
 export async function getCategories(): Promise<Category[]> {
   try {
-    const querySnapshot = await getDocs(collection(db, 'categories'));
+    const querySnapshot = await getDocs(query(collection(db, 'categories'), orderBy("name")));
     const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
     return categories;
   } catch (error) {
@@ -21,6 +21,20 @@ export async function addCategory(category: Omit<Category, 'id'>): Promise<Categ
     const docRef = await addClientDoc(collection(db, "categories"), category);
     return { id: docRef.id, ...category };
 }
+
+export async function deleteCategory(categoryId: string): Promise<void> {
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef, where('categoryId', '==', categoryId), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        throw new Error("No se puede eliminar. Hay productos asociados a esta categoría.");
+    }
+    
+    const docRef = doc(db, 'categories', categoryId);
+    await deleteDoc(docRef);
+}
+
 
 // Products
 export async function getProducts(pageSize = 24, startAfterDocId?: string): Promise<{ products: Product[], lastDocId: string | null }> {

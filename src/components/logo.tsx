@@ -29,7 +29,6 @@ export function TinaLogo({
             priority={priority}
             className={cn("object-contain", className)}
             role="img"
-            style={{ height: 'auto' }}
             {...props}
         />
     )

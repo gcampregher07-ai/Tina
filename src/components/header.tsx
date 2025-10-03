@@ -32,8 +32,8 @@ export function Header({ categories }: { categories: Category[] }) {
   const showTopBar = !pathname.startsWith('/dashboard') && pathname !== '/login';
   
   return (
-    <header className={cn("px-4 lg:px-6 h-16 flex items-center bg-background/80 backdrop-blur-sm z-40 border-b", showTopBar ? "sticky top-[33px]" : "sticky top-0")}>
-      <div className="flex items-center justify-start lg:w-1/4">
+    <header className={cn("px-4 lg:px-6 h-16 flex items-center justify-between bg-background/80 backdrop-blur-sm z-40 border-b", showTopBar ? "sticky top-[33px]" : "sticky top-0")}>
+      <div className="flex items-center justify-start w-1/3 lg:w-1/4">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden">
@@ -74,34 +74,39 @@ export function Header({ categories }: { categories: Category[] }) {
         </Link>
       </div>
 
-
-      <nav className="hidden lg:flex flex-1 justify-center items-center gap-6">
-        <Link href="/" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors">
-          Inicio
+      <div className="flex items-center justify-center w-1/3 lg:flex-1">
+        <Link href="/" className="lg:hidden">
+          <TinaLogo width={120} height={40} priority className="h-10 w-auto" />
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors px-0 gap-1">
-              Productos <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
-             <DropdownMenuItem asChild>
-                <Link href="/products">Toda la colección</Link>
-             </DropdownMenuItem>
-            {categories.map((category) => (
-              <DropdownMenuItem key={category.id} asChild>
-                <Link href={`/products?category=${category.id}`}>{category.name}</Link>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Link href="/contact" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors">
-          Contacto
-        </Link>
-      </nav>
+        <nav className="hidden lg:flex items-center gap-6">
+            <Link href="/" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors">
+            Inicio
+            </Link>
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors px-0 gap-1">
+                Productos <ChevronDown className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+                <DropdownMenuItem asChild>
+                    <Link href="/products">Toda la colección</Link>
+                </DropdownMenuItem>
+                {categories.map((category) => (
+                <DropdownMenuItem key={category.id} asChild>
+                    <Link href={`/products?category=${category.id}`}>{category.name}</Link>
+                </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+            </DropdownMenu>
+            <Link href="/contact" className="text-sm font-medium hover:text-accent-foreground/80 transition-colors">
+            Contacto
+            </Link>
+        </nav>
+      </div>
 
-      <div className="flex items-center justify-end gap-2 lg:w-1/4">
+
+      <div className="flex items-center justify-end gap-2 w-1/3 lg:w-1/4">
         <Link 
             href={mapsUrl}
             target="_blank"

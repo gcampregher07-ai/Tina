@@ -3,7 +3,6 @@
 "use client";
 
 import Link from "next/link"
-import "react-multi-carousel/lib/styles.css";
 import {
   Plus,
 } from "lucide-react"

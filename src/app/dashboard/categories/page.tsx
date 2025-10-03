@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { db } from '@/lib/firebase';
+import { db } from '@/lib/firebase-client';
 import { collection, addDoc as addCategoryDoc, getDocs, query, where } from 'firebase/firestore';
 import { getCategories, addCategory, getProducts } from "@/lib/firestore";
 import type { Category, Product } from "@/lib/types";

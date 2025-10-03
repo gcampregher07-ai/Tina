@@ -1,5 +1,6 @@
 
-import { db, storage } from './firebase';
+import { db } from './firebase-server';
+import { storage } from './firebase-client';
 import { collection, getDocs, doc, getDoc, addDoc as addClientDoc, updateDoc, deleteDoc, setDoc, query, orderBy, limit, startAfter } from 'firebase/firestore';
 import { ref, deleteObject } from "firebase/storage";
 import type { Product, Category, HeroData, Order } from './types';

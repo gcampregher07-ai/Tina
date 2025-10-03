@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState } from "react";
@@ -8,7 +7,7 @@ import { useFormContext } from "react-hook-form";
 import { AlertCircle, Trash2, Upload } from "lucide-react";
 import { ref, deleteObject } from "firebase/storage";
 
-import { storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

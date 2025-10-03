@@ -1,8 +1,9 @@
+
 "use client"
 import Link from "next/link"
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebase-client';
 import { useToast } from '@/hooks/use-toast';
 import {
   Package,

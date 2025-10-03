@@ -6,7 +6,7 @@ import type { User } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import { auth } from './firebase';
+import { auth } from './firebase-client';
 
 interface AuthContextType {
   user: User | null;

@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TinaLogo } from "@/components/logo";
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebase-client';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from "@/hooks/use-toast";
 

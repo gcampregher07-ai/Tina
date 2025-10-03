@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -8,7 +7,7 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import * as React from "react";
 import { doc, collection } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { db } from "@/lib/firebase-client"
 
 import { Button } from "@/components/ui/button"
 import {

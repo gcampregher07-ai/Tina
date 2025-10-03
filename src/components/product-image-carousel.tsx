@@ -22,7 +22,7 @@ export default function ProductImageCarousel({ images }: ProductImageCarouselPro
   }
 
   return (
-    <div className="w-full aspect-square relative">
+    <div className="w-full h-80 max-h-80 relative">
       <Carousel
         swipeable
         draggable={false}

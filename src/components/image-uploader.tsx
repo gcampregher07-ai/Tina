@@ -11,7 +11,7 @@ import { ref, deleteObject } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
@@ -123,7 +123,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
       <CardContent className="p-4 space-y-4">
         <div
           className={cn(
-            "aspect-video w-full flex items-center justify-center rounded-md border-2 border-dashed transition-colors",
+            "w-full flex items-center justify-center rounded-md border-2 border-dashed transition-colors h-80 max-h-80",
             { "border-destructive": error, "p-0 border-none": imageUrl && !error }
           )}
         >

@@ -100,12 +100,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const localData = localStorage.getItem('tina-cart');
       return localData ? { items: JSON.parse(localData) } : initial;
     } catch (error) {
+      console.error("Failed to parse cart from localStorage", error);
       return initial;
     }
   });
 
   useEffect(() => {
-    localStorage.setItem('tina-cart', JSON.stringify(state.items));
+    try {
+      localStorage.setItem('tina-cart', JSON.stringify(state.items));
+    } catch (error) {
+      console.error("Failed to save cart to localStorage", error);
+    }
   }, [state.items]);
 
   const getCartTotal = () => {

@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { XCircle } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
 
 export default function CheckoutCancelPage() {
   return (

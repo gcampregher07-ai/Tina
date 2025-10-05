@@ -2,11 +2,13 @@
 "use client";
 
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import ContactForm from "@/components/contact-form";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg

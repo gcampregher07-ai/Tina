@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+
 
 // NOTA: Usando el número de la tienda ya definido en otras partes del sitio.
 const numeroWhatsapp = "5493584922453";

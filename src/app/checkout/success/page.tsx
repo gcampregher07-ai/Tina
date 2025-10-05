@@ -6,9 +6,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
 
 export default function CheckoutSuccessPage() {
     const { dispatch } = useCart();

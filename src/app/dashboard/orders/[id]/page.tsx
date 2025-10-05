@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getOrder } from "@/lib/firestore";
+import { getClientOrder } from "@/lib/firebase-client";
 import type { Order, CartItem } from "@/lib/types";
 import { ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
@@ -65,7 +65,7 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (params.id) {
       setLoading(true);
-      getOrder(params.id)
+      getClientOrder(params.id)
         .then((orderData) => {
           if (!orderData) {
             setError("El pedido no fue encontrado.");

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getOrder } from "@/lib/firestore";
+import { getClientOrder } from "@/lib/firebase-client";
 import type { Order, CartItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -86,7 +86,7 @@ export default function OrderSummaryPage() {
         return;
     };
     
-    getOrder(params.id)
+    getClientOrder(params.id)
       .then((orderData) => {
         setOrder(orderData || null);
       })

@@ -158,32 +158,6 @@ export async function saveHeroData(heroData: HeroData): Promise<void> {
     await setDoc(heroDocRef, heroData);
 }
 
-// Orders (Client SDK)
-export async function getOrders(pageSize = 20, startAfterDocId?: string): Promise<{ orders: Order[], lastDocId: string | null }> {
-  let q;
-  if (startAfterDocId) {
-    const startDocRef = doc(db, "orders", startAfterDocId);
-    const startSnap = await getDoc(startDocRef);
-    if (!startSnap.exists()) {
-      q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(pageSize));
-    } else {
-      q = query(collection(db, "orders"), orderBy("createdAt", "desc"), startAfter(startSnap), limit(pageSize));
-    }
-  } else {
-    q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(pageSize));
-  }
-
-  const snap = await getDocs(q);
-  const orders = snap.docs.map(docSnap => {
-    const data = docSnap.data();
-    return { id: docSnap.id, ...data, createdAt: data.createdAt?.toDate?.() || new Date() } as Order;
-  });
-
-  const lastDoc = snap.docs[snap.docs.length - 1];
-  return { orders, lastDocId: lastDoc ? lastDoc.id : null };
-}
-
-
 export async function getOrder(id: string): Promise<Order | null> {
     try {
         const docRef = doc(db, 'orders', id);

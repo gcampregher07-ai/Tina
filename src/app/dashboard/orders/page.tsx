@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getOrders } from "@/lib/firestore"
+import { getClientOrders } from "@/lib/firebase-client"
 import type { Order } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
@@ -73,7 +73,7 @@ export default function OrdersPage() {
         async function load() {
             setLoading(true);
             try {
-                const res = await getOrders(100); // Fetch more to calculate monthly sales accurately
+                const res = await getClientOrders(100); // Fetch more to calculate monthly sales accurately
                 if (!mounted) return;
                 setOrders(res.orders);
                 setLastId(res.lastDocId);
@@ -98,7 +98,7 @@ export default function OrdersPage() {
         if (!lastId || loadingMore) return;
         setLoadingMore(true);
         try {
-            const res = await getOrders(PAGE_SIZE, lastId);
+            const res = await getClientOrders(PAGE_SIZE, lastId);
             setOrders(prev => [...prev, ...res.orders]);
             setLastId(res.lastDocId);
         } catch(error) {

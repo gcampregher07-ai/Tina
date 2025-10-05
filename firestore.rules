@@ -1,31 +1,35 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read for products and categories
+    // Products can be read by anyone, but only written by authenticated admins.
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null; // Only admins (logged in)
-    }
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Only admins
-    }
-    
-    // Allow public read for hero settings
-    match /site_settings/hero {
-        allow read: if true;
-        allow write: if request.auth != null; // Only admins
+      allow write: if request.auth != null;
     }
 
-    // Orders can be created by anyone, but only read/updated/deleted by admins.
-    // A specific order can be read by anyone who has the link (for order summary page).
+    // Categories can be read by anyone, but only written by authenticated admins.
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Site settings (like the hero banner) can be read by anyone,
+    // but only written by authenticated admins.
+    match /site_settings/{docId} {
+        allow read: if true;
+        allow write: if request.auth != null;
+    }
+
+    // Orders can be created by anyone.
+    // A specific order can be read by anyone (for the order summary page).
+    // Listing all orders is restricted to authenticated admins (for the dashboard).
+    // Writing/deleting orders is restricted to authenticated admins.
     match /orders/{orderId} {
-      allow read: if true; // Allows order summary page to work
-      allow create: if true; // Allow anyone to create an order
-      allow update, delete: if request.auth != null; // Only admins can modify
+      allow create: if true;
+      allow get: if true; // Allows reading a single document
+      allow list: if request.auth != null; // Allows querying/listing the collection
+      allow update, delete: if request.auth != null;
     }
   }
 }

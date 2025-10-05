@@ -5,10 +5,14 @@ import { Header } from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone } from "lucide-react";
 import Link from "next/link";
-import ContactForm from "@/components/contact-form";
 import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+const ContactForm = dynamic(() => import('@/components/contact-form'), {
+  loading: () => <Skeleton className="h-[400px] w-full" />,
+  ssr: false,
+});
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg

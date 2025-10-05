@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import * as React from "react";
 import { doc, collection } from "firebase/firestore"
 import { db } from "@/lib/firebase-client"
+import dynamic from 'next/dynamic'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -27,8 +28,9 @@ import type { Product, Category, StockItem } from "@/lib/types"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { ImageUploader } from "./image-uploader"
-import ColorPicker from "./ColorPicker";
 import { PlusCircle } from "lucide-react"
+
+const ColorPicker = dynamic(() => import("./ColorPicker"), { ssr: false });
 
 const SIZES_LETTERS = ["S", "M", "L", "XL"];
 const SIZES_NUMBERS = ["34", "36", "38", "40", "42", "44", "46"];

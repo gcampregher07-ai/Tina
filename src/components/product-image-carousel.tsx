@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -36,7 +37,6 @@ export default function ProductImageCarousel({ images }: ProductImageCarouselPro
                 height={500}
                 className="object-contain w-full h-full rounded-md"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority={index === 0}
               />
             </div>
           </CarouselItem>

@@ -43,6 +43,18 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
         return;
     }
 
+    // If there is an existing image, try to delete it first.
+    if (imageUrl && imageUrl.includes("firebasestorage.googleapis.com")) {
+      try {
+        const oldImageRef = ref(storage, imageUrl);
+        await deleteObject(oldImageRef);
+      } catch (deleteError: any) {
+        // Log the error but don't block the upload. It might be a non-existent file or a permission issue.
+        console.warn("Could not delete old image, it might not exist:", deleteError);
+      }
+    }
+
+
     setUploadProgress(0);
 
     try {

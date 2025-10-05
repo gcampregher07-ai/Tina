@@ -133,7 +133,8 @@ export async function deleteProduct(id: string): Promise<void> {
                 return Promise.resolve();
             });
             await Promise.all(deletePromises).catch(error => {
-                console.error("Error deleting one or more images from storage:", error);
+                // Log and continue, do not block firestore deletion
+                console.error("Error deleting one or more images from storage, but proceeding with Firestore document deletion:", error);
             });
         }
     }

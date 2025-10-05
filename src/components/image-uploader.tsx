@@ -48,9 +48,12 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
       try {
         const oldImageRef = ref(storage, imageUrl);
         await deleteObject(oldImageRef);
+        toast({ title: "Imagen anterior eliminada", description: "La imagen anterior ha sido reemplazada.", duration: 2000 });
       } catch (deleteError: any) {
         // Log the error but don't block the upload. It might be a non-existent file or a permission issue.
-        console.warn("Could not delete old image, it might not exist:", deleteError);
+        if (deleteError.code !== 'storage/object-not-found') {
+            console.warn("Could not delete old image, it might not exist or there's a permission issue:", deleteError);
+        }
       }
     }
 
@@ -125,6 +128,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
     } catch (error: any) {
       console.error("Error deleting image:", error);
       if (error.code === 'storage/object-not-found') {
+        // If the file doesn't exist in storage, just clear the form field
         setValue(fieldName, "", { shouldValidate: true, shouldDirty: true });
          if (onDelete) {
           onDelete();

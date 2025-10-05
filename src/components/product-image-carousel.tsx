@@ -33,8 +33,9 @@ export default function ProductImageCarousel({ images }: ProductImageCarouselPro
               <Image
                 src={url}
                 alt={`Producto imagen ${index + 1}`}
-                fill
-                className="object-contain rounded-md"
+                width={500}
+                height={500}
+                className="object-contain w-full h-full rounded-md"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 priority={index === 0}
               />

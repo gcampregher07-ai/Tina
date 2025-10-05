@@ -58,6 +58,7 @@ export default async function Home() {
                         width={600}
                         height={400}
                         priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                     />
                 ) : (
                     <div className="mx-auto aspect-video overflow-hidden rounded-xl bg-gray-200 flex items-center justify-center sm:w-full lg:order-last">

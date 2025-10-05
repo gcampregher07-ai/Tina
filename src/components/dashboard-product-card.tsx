@@ -86,7 +86,7 @@ export function DashboardProductCard({ product, onProductDeleted }: DashboardPro
           {product.imageUrls && product.imageUrls.length > 0 ? (
             <ProductImageCarousel images={product.imageUrls} />
           ) : (
-            <div className="flex items-center justify-center h-48 text-muted-foreground">
+            <div className="flex items-center justify-center h-full text-muted-foreground">
               Sin imagen
             </div>
           )}

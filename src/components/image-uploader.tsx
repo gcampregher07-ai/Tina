@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -146,7 +145,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
               <div onClick={triggerFileInput} className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground p-4 text-center">
                 <Upload className="h-10 w-10" />
                 <p className="font-medium">Haz clic o arrastra para subir un archivo</p>
-                <p className="text-xs">Cualquier formato y tamaño de imagen</p>
+                <p className="text-xs">JPG, PNG, o WEBP</p>
               </div>
             )
           )}
@@ -157,7 +156,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
             </div>
           )}
         </div>
-        <Input id={`image-upload-input-${fieldName}`} type="file" className="sr-only" onChange={handleFileChange} accept="image/*" disabled={uploadProgress !== null || isSubmitting} />
+        <Input id={`image-upload-input-${fieldName}`} type="file" className="sr-only" onChange={handleFileChange} accept="image/jpeg,image/png,image/webp" disabled={uploadProgress !== null || isSubmitting} />
 
         {imageUrl && !uploadProgress && (
           <Button type="button" size="icon" variant="destructive" className="absolute top-1 right-1 h-7 w-7" onClick={handleDeleteImage} disabled={isSubmitting}>

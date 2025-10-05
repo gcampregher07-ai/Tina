@@ -1,6 +1,7 @@
 
 "use client";
 
+import React from "react";
 import { ShoppingCart as ShoppingCartIcon, Trash2, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

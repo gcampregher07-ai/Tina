@@ -28,6 +28,9 @@ export async function POST(req: Request) {
     
     // Transaction to update stock
     await adminDb.runTransaction(async (transaction) => {
+      const productUpdates = [];
+
+      // 1. First, read all product data and validate stock
       for (const item of cartItems) {
         const productRef = adminDb.collection("products").doc(item.productId);
         const productSnap = await transaction.get(productRef);
@@ -53,14 +56,19 @@ export async function POST(req: Request) {
           throw new Error(`Stock insuficiente para ${item.name} (Talle: ${item.size}, Color: ${item.color}).`);
         }
 
-        // Create a new stock array with the updated quantity
+        // Prepare the update
         const newStock = [...stock];
         newStock[stockIndex] = {
             ...newStock[stockIndex],
             quantity: newStock[stockIndex].quantity - item.quantity
         };
-        
-        transaction.update(productRef, { stock: newStock });
+
+        productUpdates.push({ ref: productRef, stock: newStock });
+      }
+
+      // 2. After all reads and validations, perform all writes
+      for (const update of productUpdates) {
+        transaction.update(update.ref, { stock: update.stock });
       }
     });
     

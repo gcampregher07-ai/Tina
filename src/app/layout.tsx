@@ -44,7 +44,7 @@ export default async function RootLayout({
   return (
     <html lang="es" className="antialiased">
        <head>
-          <link rel="preconnect" href="https://ventaunica.firebaseapp.com" />
+          <link rel="preconnect" href="https://ventaunica.firebaseapp.com" crossOrigin="anonymous" />
           <link rel="preconnect" href="https://apis.google.com" />
           {heroData?.imageUrl && (
               <link rel="preload" as="image" href={heroData.imageUrl} fetchPriority="high" />

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     await bucketFile.save(fileBuffer, {
       metadata: {
         contentType: file.type,
+        cacheControl: 'public, max-age=31536000, immutable'
       },
     });
     

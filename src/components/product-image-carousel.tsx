@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -24,17 +25,17 @@ export default function ProductImageCarousel({ images }: ProductImageCarouselPro
   }
 
   return (
-    <Carousel className="w-full group">
+    <Carousel className="w-full h-full group">
       <CarouselContent>
         {images.map((url, index) => (
           <CarouselItem key={index}>
-            <div className="relative aspect-square w-full">
+            <div className="relative aspect-square w-full h-full">
               <Image
                 src={url}
                 alt={`Producto imagen ${index + 1}`}
                 fill
                 className="object-contain rounded-md"
-                sizes="(max-width: 768px) 100vw, 500px"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 priority={index === 0}
               />
             </div>

@@ -56,7 +56,7 @@ export default async function Home() {
                         data-ai-hint="fashion collection"
                         src={heroData.imageUrl}
                         width={600}
-                        height={338}
+                        height={400}
                         priority
                     />
                 ) : (

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -20,6 +21,8 @@ interface ImageUploaderProps {
   onDelete?: () => void;
 }
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
 export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderProps) {
   const { setValue, watch, formState: { isSubmitting } } = useFormContext();
   const imageUrl = watch(fieldName);
@@ -32,6 +35,14 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
     if (!file) return;
 
     setError(null);
+
+    if (file.size > MAX_FILE_SIZE) {
+        const errorMsg = `El archivo es demasiado grande. El tamaño máximo es de ${MAX_FILE_SIZE / 1024 / 1024}MB.`;
+        setError(errorMsg);
+        toast({ variant: "destructive", title: "Error de subida", description: errorMsg });
+        return;
+    }
+
     setUploadProgress(0);
 
     try {
@@ -132,7 +143,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
               <p className="text-sm">{error}</p>
             </div>
           ) : imageUrl ? (
-            <div className="relative w-full h-full">
+            <div key={imageUrl} className="relative w-full h-full">
               <Image
                 src={imageUrl}
                 alt="Vista previa del producto"
@@ -145,7 +156,7 @@ export function ImageUploader({ fieldName, productId, onDelete }: ImageUploaderP
               <div onClick={triggerFileInput} className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground p-4 text-center">
                 <Upload className="h-10 w-10" />
                 <p className="font-medium">Haz clic o arrastra para subir un archivo</p>
-                <p className="text-xs">JPG, PNG, o WEBP</p>
+                <p className="text-xs">JPG, PNG, o WEBP (Máx 2MB)</p>
               </div>
             )
           )}

@@ -27,11 +27,28 @@ export function ShoppingCart() {
   const cartTotal = getCartTotal();
 
   const getItemDescription = (item: CartItem) => {
-    let description = [];
-    if (item.size) description.push(`Talle: ${item.size}`);
-    if (item.color) description.push(`Color: ${item.color}`);
-    return description.join(' - ');
-  }
+    let descriptionParts = [];
+    if (item.size) descriptionParts.push(`Talle: ${item.size}`);
+    
+    const colorElement = item.color ? (
+      <span className="flex items-center gap-1.5">
+        Color: <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: item.color }} />
+      </span>
+    ) : null;
+
+    return (
+      <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
+        {descriptionParts.map((part, index) => (
+          <React.Fragment key={index}>
+            <span>{part}</span>
+            {index < descriptionParts.length - 1 && <span className="mx-1">-</span>}
+          </React.Fragment>
+        ))}
+        {descriptionParts.length > 0 && colorElement && <span className="mx-1">-</span>}
+        {colorElement}
+      </div>
+    );
+  };
   
   const handleRemove = (cartItemId: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: { cartItemId } });
@@ -88,7 +105,7 @@ export function ShoppingCart() {
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">{item.name}</p>
-                       <p className="text-sm text-muted-foreground">{getItemDescription(item)}</p>
+                       <div className="text-sm text-muted-foreground">{getItemDescription(item)}</div>
                       <p className="text-sm text-muted-foreground">
                         {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price)}
                       </p>

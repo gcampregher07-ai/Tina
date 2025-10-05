@@ -88,12 +88,25 @@ export function CheckoutForm() {
   };
 
   const getItemDescription = (item: CartItem) => {
-    let description = [];
-    if (item.size) description.push(`Talle: ${item.size}`);
-    if (item.color) description.push(`Color: ${item.color}`);
-    description.push(`Cantidad: ${item.quantity}`);
-    return description.join(' - ');
+    let descriptionParts = [];
+    if (item.size) descriptionParts.push(`Talle: ${item.size}`);
+    
+    const colorElement = item.color ? (
+      <span className="flex items-center gap-1.5">
+        Color: <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: item.color }} />
+      </span>
+    ) : null;
+
+    return (
+      <div className="flex items-center gap-2">
+        {descriptionParts.join(' - ')}
+        {descriptionParts.length > 0 && colorElement && <span>-</span>}
+        {colorElement}
+        <span>- Cantidad: {item.quantity}</span>
+      </div>
+    );
   }
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -145,9 +158,9 @@ export function CheckoutForm() {
                 </div>
                 <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                         {getItemDescription(item)}
-                    </p>
+                    </div>
                 </div>
                 <p className="font-medium">
                     {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price * item.quantity)}

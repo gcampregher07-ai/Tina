@@ -13,10 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/header";
 import { CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
-
+import { Footer } from "@/components/footer";
 
 // NOTA: Usando el número de la tienda ya definido en otras partes del sitio.
 const numeroWhatsapp = "5493584922453";

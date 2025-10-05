@@ -4,9 +4,7 @@ import { Header } from '@/components/header';
 import { getCategories, getProducts } from "@/lib/firestore";
 import type { Category, Product } from "@/lib/types";
 import { ProductGrid } from "@/components/product-grid";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+import { Footer } from "@/components/footer";
 
 export default async function ProductsPage({
   searchParams,

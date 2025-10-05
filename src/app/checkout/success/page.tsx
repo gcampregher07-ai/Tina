@@ -8,9 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Header } from "@/components/header";
 import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+import { Footer } from "@/components/footer";
 
 export default function CheckoutSuccessPage() {
     const { dispatch } = useCart();

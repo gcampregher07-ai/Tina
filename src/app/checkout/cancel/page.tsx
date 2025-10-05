@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Header } from "@/components/header";
 import { XCircle } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+import { Footer } from "@/components/footer";
 
 export default function CheckoutCancelPage() {
   return (

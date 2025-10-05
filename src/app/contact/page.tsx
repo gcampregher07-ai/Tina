@@ -7,8 +7,8 @@ import { MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Footer } from "@/components/footer";
 
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
 const ContactForm = dynamic(() => import('@/components/contact-form'), {
   loading: () => <Skeleton className="h-[400px] w-full" />,
   ssr: false,

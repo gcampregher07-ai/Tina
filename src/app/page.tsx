@@ -5,10 +5,9 @@ import { getProducts, getCategories, getHeroData } from "@/lib/firestore";
 import type { Product, Category, HeroData } from "@/lib/types";
 import { Header } from "@/components/header";
 import Image from "next/image";
+import { Footer } from "@/components/footer";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
 
 const ProductCard = dynamic(() => import('@/components/product-card').then(mod => mod.ProductCard), {
   loading: () => (

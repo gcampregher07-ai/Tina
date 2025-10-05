@@ -2,9 +2,7 @@
 import { Header } from "@/components/header";
 import { CheckoutForm } from "@/components/checkout-form";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+import { Footer } from "@/components/footer";
 
 function CheckoutLoading() {
     return (

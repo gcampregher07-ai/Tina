@@ -1,14 +1,26 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/product-card";
 import { getProducts, getCategories, getHeroData } from "@/lib/firestore";
 import type { Product, Category, HeroData } from "@/lib/types";
 import { Header } from "@/components/header";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Footer = dynamic(() => import('@/components/footer').then(mod => mod.Footer), { ssr: false });
+
+const ProductCard = dynamic(() => import('@/components/product-card').then(mod => mod.ProductCard), {
+  loading: () => (
+    <div className="flex flex-col space-y-3">
+      <Skeleton className="h-[250px] w-full rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+    </div>
+  ),
+});
 
 
 const initialHeroData = {

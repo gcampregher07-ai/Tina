@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Link from "next/link"
@@ -150,7 +149,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {product.category && <CardDescription>{product.category.name}</CardDescription>}
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <div className="relative w-full overflow-hidden rounded-md bg-muted">
+                <div className="relative w-full overflow-hidden rounded-md bg-muted aspect-square">
                     {product.imageUrls && product.imageUrls.length > 0 ? (
                         <ProductImageCarousel images={product.imageUrls} />
                     ) : (

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -54,7 +53,7 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>
 
 function StockInputs() {
-  const { control, getValues, formState: { errors } } = useFormContext<ProductFormValues>();
+  const { control, getValues, setValue, formState: { errors } } = useFormContext<ProductFormValues>();
   
   const { fields, replace } = useFieldArray({
     control,
@@ -69,11 +68,10 @@ function StockInputs() {
     const newStock: StockItem[] = [...currentStock];
     const watchedSizesValue = watchedSizes || [];
 
-    // Check if this color is already managed
     const colorExists = currentStock.some(item => item.color === newColor);
     if(colorExists) {
-      // Maybe show a toast? For now, we just don't add it.
-      return;
+        // Maybe add a toast here
+        return;
     }
 
     if (watchedSizesValue.length > 0) {
@@ -87,38 +85,81 @@ function StockInputs() {
     }
     replace(newStock);
   };
+  
+  const handleSizesChange = (newSizes: string[]) => {
+      setValue("sizes", newSizes, { shouldValidate: true });
+      const currentStock = getValues("stock") || [];
+      const newStock: StockItem[] = [];
+      const existingColors = Array.from(new Set(currentStock.map(s => s.color)));
 
-
-  React.useEffect(() => {
-    const currentStock = getValues("stock") || [];
-    const newStock: StockItem[] = [];
-    const existingColors = Array.from(new Set(currentStock.map(s => s.color)));
-
-    if (watchedSizes && watchedSizes.length > 0 && existingColors.length > 0) {
-      for (const color of existingColors) {
-          for (const size of watchedSizes) {
-              const existingStockItem = currentStock.find(
-                  (s: StockItem) => s.size === size && s.color === color
-              );
-              newStock.push({
-                  size,
-                  color,
-                  quantity: existingStockItem ? existingStockItem.quantity : 0,
-              });
+      if (newSizes.length > 0 && existingColors.length > 0) {
+          for (const color of existingColors) {
+              for (const size of newSizes) {
+                  const existingItem = currentStock.find(item => item.size === size && item.color === color);
+                  newStock.push({
+                      size,
+                      color,
+                      quantity: existingItem ? existingItem.quantity : 0
+                  });
+              }
           }
       }
-       // Filter out items for sizes that are no longer selected
-      const filteredStock = newStock.filter(item => watchedSizes.includes(item.size));
-      replace(filteredStock);
-    } else {
-      replace([]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedSizes]);
-
+      replace(newStock);
+  }
 
   if (!watchedSizes?.length) {
-      return <p className="text-sm text-muted-foreground">Selecciona al menos un talle para empezar a gestionar el stock.</p>
+      return (
+        <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Selecciona al menos un talle para empezar a gestionar el stock.</p>
+            <FormField
+                control={control}
+                name="sizes"
+                render={({ field }) => (
+                    <FormItem>
+                     <FormLabel>Talles Aplicables</FormLabel>
+                    <FormControl>
+                        <div className="space-y-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <ToggleGroup
+                                    type="multiple"
+                                    variant="outline"
+                                    value={field.value}
+                                    onValueChange={handleSizesChange}
+                                >
+                                    {SIZES_LETTERS.map(size => (
+                                        <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
+                                            {size}
+                                        </ToggleGroupItem>
+                                    ))}
+                                </ToggleGroup>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => handleSizesChange(["U"])}
+                                >
+                                    Talle Único
+                                </Button>
+                            </div>
+                             <ToggleGroup
+                                type="multiple"
+                                variant="outline"
+                                value={field.value}
+                                onValueChange={handleSizesChange}
+                            >
+                                {SIZES_NUMBERS.map(size => (
+                                    <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
+                                        {size}
+                                    </ToggleGroupItem>
+                                ))}
+                            </ToggleGroup>
+                        </div>
+                    </FormControl>
+                    <FormMessage className="pt-2" />
+                    </FormItem>
+                )}
+            />
+        </div>
+      )
   }
   
   const stockByColor = fields.reduce((acc, field) => {
@@ -131,6 +172,53 @@ function StockInputs() {
 
   return (
     <div className="space-y-4">
+        <FormField
+            control={control}
+            name="sizes"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Talles Aplicables</FormLabel>
+                    <FormControl>
+                        <div className="space-y-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <ToggleGroup
+                                    type="multiple"
+                                    variant="outline"
+                                    value={field.value}
+                                    onValueChange={handleSizesChange}
+                                >
+                                    {SIZES_LETTERS.map(size => (
+                                        <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
+                                            {size}
+                                        </ToggleGroupItem>
+                                    ))}
+                                </ToggleGroup>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => handleSizesChange(["U"])}
+                                >
+                                    Talle Único
+                                </Button>
+                            </div>
+                                <ToggleGroup
+                                type="multiple"
+                                variant="outline"
+                                value={field.value}
+                                onValueChange={handleSizesChange}
+                            >
+                                {SIZES_NUMBERS.map(size => (
+                                    <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
+                                        {size}
+                                    </ToggleGroupItem>
+                                ))}
+                            </ToggleGroup>
+                        </div>
+                    </FormControl>
+                    <FormMessage className="pt-2" />
+                </FormItem>
+            )}
+        />
         <div className="flex items-end gap-4">
             <FormItem>
                 <FormLabel>Añadir Color</FormLabel>
@@ -323,53 +411,6 @@ export function ProductForm({ product }: { product?: Product }) {
                     <CardDescription>Define las variaciones de tu producto y gestiona el stock para cada una.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                     <FormField
-                        control={control}
-                        name="sizes"
-                        render={({ field }) => (
-                            <FormItem>
-                             <FormLabel>Talles Aplicables</FormLabel>
-                            <FormControl>
-                                <div className="space-y-4">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <ToggleGroup
-                                            type="multiple"
-                                            variant="outline"
-                                            value={field.value}
-                                            onValueChange={field.onChange}
-                                        >
-                                            {SIZES_LETTERS.map(size => (
-                                                <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
-                                                    {size}
-                                                </ToggleGroupItem>
-                                            ))}
-                                        </ToggleGroup>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => field.onChange(["U"])}
-                                        >
-                                            Talle Único
-                                        </Button>
-                                    </div>
-                                     <ToggleGroup
-                                        type="multiple"
-                                        variant="outline"
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                    >
-                                        {SIZES_NUMBERS.map(size => (
-                                            <ToggleGroupItem key={size} value={size} aria-label={`Talle ${size}`}>
-                                                {size}
-                                            </ToggleGroupItem>
-                                        ))}
-                                    </ToggleGroup>
-                                </div>
-                            </FormControl>
-                            <FormMessage className="pt-2" />
-                            </FormItem>
-                        )}
-                        />
                      <div className="space-y-2">
                         <FormLabel>Gestión de Stock por Color</FormLabel>
                         <StockInputs />
